@@ -13,10 +13,10 @@ spec:
     spec:
       containers:
       # Docker image used by second revision
-      - image: gcr.io/knative-samples/knative-route-demo:green 
+      - image: docker.io/ibmcom/helloworld
         env:
-        - name: T_VERSION
-          value: "green"
+        - name: TARGET
+          value: "Stranger"
   traffic: # all traffic goes to the revision defined herein
   - tag: current
     latestRevision: true
