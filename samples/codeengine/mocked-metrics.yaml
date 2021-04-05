@@ -1,0 +1,50 @@
+- provider: prometheus # this URI will generate metrics in Prometheus response format
+  uri: /promcounter # do not use / for the uri; will lead to unexpected bad things; also make sure URIs are unique
+  # this URI will generate metrics for the following versions
+  versions:
+  - params: # params for version 1 should match the following; 
+    - name: query
+      # make value a literal scalar so that it can be used as a regex
+      value: "error_count_baseline"
+    metric:
+      # metric returned for this version will be interval*rate
+      # interval = time elapsed in seconds since the metrics-mock pod started
+      type: counter
+      rate: 2    
+  - params: # params for version 1 should match the following; 
+    - name: query
+      # make value a literal scalar so that it can be used as a regex
+      value: "error_count_candidate"
+    metric:
+      # metric returned for this version will be interval*rate
+      # interval = time elapsed in seconds since the metrics-mock pod started
+      type: counter
+      rate: 0   
+- provider: prometheus # this URI will generate metrics in Prometheus response format
+  uri: /promgauge # do not use / for the uri; will lead to unexpected bad things; also make sure URIs are unique
+  # this URI will generate metrics for the following versions
+  versions:
+  - params: # params for version 1 should match the following; 
+    - name: query
+      # make value a literal scalar so that it can be used as a regex
+      value: "get_error_rate_baseline"
+    metric:
+      # metric returned for this version will be (scaled and shifted) beta distributed
+      # interval = time elapsed in seconds since the metrics-mock pod started
+      type: gauge
+      shift: 5
+      multiplier: 10
+      alpha: 2
+      beta: 2
+  - params: # params for version 1 should match the following; 
+    - name: query
+      # make value a literal scalar so that it can be used as a regex
+      value: "get_error_rate_candidate"
+    metric:
+      # metric returned for this version will be (scaled and shifted) beta distributed
+      # interval = time elapsed in seconds since the metrics-mock pod started
+      type: gauge
+      shift: 5
+      multiplier: 10
+      alpha: 2
+      beta: 2
