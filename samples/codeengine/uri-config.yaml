@@ -5,7 +5,7 @@
   - params: # params for version 1 should match the following; 
     - name: query
       # make value a literal scalar so that it can be used as a regex
-      value: "error_count\\{revision_name='sample-app-00001'\\}\\[.*\\]"
+      value: "error_rate\\{revision_name='sample-app-00001'\\}\\[.*\\]"
     metric:
       # metric returned for this version will be interval*rate
       # interval = time elapsed in seconds since the metrics-mock pod started
@@ -14,37 +14,31 @@
   - params: # params for version 1 should match the following; 
     - name: query
       # make value a literal scalar so that it can be used as a regex
-      value: "error_count\\{revision_name='sample-app-v2'\\}\\[.*\\]"
+      value: "error_rate\\{revision_name='sample-app-v2'\\}\\[.*\\]"
     metric:
       # metric returned for this version will be interval*rate
       # interval = time elapsed in seconds since the metrics-mock pod started
       type: counter
-      rate: 0.00001   
+      rate: 0.00001
 - provider: prometheus # this URI will generate metrics in Prometheus response format
-  uri: /promgauge # do not use / for the uri; will lead to unexpected bad things; also make sure URIs are unique
+  uri: /promcounter # do not use / for the uri; will lead to unexpected bad things; also make sure URIs are unique
   # this URI will generate metrics for the following versions
   versions:
   - params: # params for version 1 should match the following; 
     - name: query
       # make value a literal scalar so that it can be used as a regex
-      value: "get_error_rate_baseline"
+      value: "request_count\\{revision_name='sample-app-00001'\\}\\[.*\\]"
     metric:
-      # metric returned for this version will be (scaled and shifted) beta distributed
+      # metric returned for this version will be interval*rate
       # interval = time elapsed in seconds since the metrics-mock pod started
-      type: gauge
-      shift: 5
-      multiplier: 10
-      alpha: 2
-      beta: 2
+      type: counter
+      rate: 1    
   - params: # params for version 1 should match the following; 
     - name: query
       # make value a literal scalar so that it can be used as a regex
-      value: "get_error_rate_candidate"
+      value: "request_count\\{revision_name='sample-app-v2'\\}\\[.*\\]"
     metric:
-      # metric returned for this version will be (scaled and shifted) beta distributed
+      # metric returned for this version will be interval*rate
       # interval = time elapsed in seconds since the metrics-mock pod started
-      type: gauge
-      shift: 5
-      multiplier: 10
-      alpha: 2
-      beta: 2
+      type: counter
+      rate: 1

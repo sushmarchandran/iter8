@@ -1,7 +1,11 @@
-# Iter8-code engine instructions
+# Iter8-code engine demo instructions
+This demo requires two kubernetes clusters. One IBM Cloud cluster with a code-engine plugin installed and a local minikube cluster
+
+## Preliminary set up:
 
 
-## Sign into IBM Cloud and set up resource group and project with access t the kubeconfig
+## In IBM Cloud Cluster:
+### Step 1: Sign into IBM Cloud and set up resource group and project. Save the Kubeconfig path generated in the last step.
 ```
 ic login --sso
 ic target -g default
@@ -9,43 +13,56 @@ ibmcloud ce project select -n sample-p
 ibmcloud ce project current 
 ```
 
-## Get ns
+### Step 2: Get ns
 ```
 kubectl get ns
+export $NAMESPACE=<Code engine namespace>
 ```
 
-## Add the namespace into the candidate script
-
-## Apply the candidate version for that
+## In your local minikube cluster:
+### Step 1: Start minikube
 ```
-kubectl apply -f samples/codeengine/sample-app-candidate.yaml -n <NAMESPACE>
-```
-
-
-## Install ITER8
-
-```
-kustomize build ./core | kubectl -n iter8-system apply -f - 
+minikube start --cpus 5 --memory 5120
 ```
 
-
-## Create kube config
-./samples/codeengine/create-cm.sh /Users/sushma/.bluemix/plugins/code-engine/sample-p-72127f4a-ea5b-4c6f-a64a-054bcb081958.yaml
-
-
-
-## Run metrics mock
+### Step 3: Set PATHS to run cmmands easily
 ```
-kubectl apply -f samples/codeengine/metricmock.yaml 
+export ITER8=/Users/sushma/projects/iter8-tools/forks/iter8
+export ITER8INSTALL=/Users/sushma/projects/iter8-tools/forks/iter8-install
 ```
 
-## Apply Metrics
+### Step 4: Install ITER8
 ```
-kustomize build ./metrics | kubectl apply -f - 
+kustomize build $ITER8INSTALL/core | kubectl -n iter8-system apply -f - 
 ```
 
+### Step 5: Create a configmap so the kubeconfig of the code engine cluster is accessible to minikube. Get 
+```
+$ITER8/samples/codeengine/create-cm.sh <CODE ENGINE KUBECONFIG>
+```
 
-## Generate traffic
+### Step 6: Run metrics mock
+```
+kubectl apply -f $ITER8/samples/codeengine/metricmock.yaml 
+```
 
+### Step 7: Apply Metrics
+```
+kustomize build $ITER8INSTALL/metrics/codeengine | kubectl apply -f - 
+```
 
-## Run experiment
+------------------------------------------------
+## Demo of a fixed split experiment using iter8
+
+### Apply the candidate version for that
+```
+kubectl apply -f $ITER8/samples/codeengine/sample-app-candidate.yaml -n $NAMESPACE
+```
+
+### Show traffic
+```
+http://sample-app.7roueeh7gob.us-south.codeengine.appdomain.cloud
+```
+
+### Run experiment
+kubectl apply -f $ITER8/samples/codeengine/experiment.yaml
