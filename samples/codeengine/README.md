@@ -37,4 +37,8 @@ kustomize build ./core | kubectl -n iter8-system apply -f -
 ## Apply Metrics
 
 
+
+## Generate traffic
+
+
 ## Run experiment

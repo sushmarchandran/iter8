@@ -21,19 +21,16 @@ spec:
           args: 
           - "apply"
           - "-f"
-          - "https://raw.githubusercontent.com/iter8-tools/iter8/master/samples/knative/quickstart/{{ .promote }}.yaml"
+          - "https://raw.githubusercontent.com/sushmarchandran/iter8/codeengine/samples/codeengine/{{ .promote }}.yaml"
           - "--kubeconfig=/kubeconfig/ce-kubeconfig.yaml"
   criteria:
+    # Other metrics:
     # mean latency of version should be under 50 milliseconds
     # 95th percentile latency should be under 100 milliseconds
     # error rate should be under 1%
     objectives: 
-    - metric: mean-latency
-      upperLimit: 50
-    - metric: 95th-percentile-tail-latency
-      upperLimit: 100
     - metric: error-rate
-      upperLimit: "0.01"
+      upperLimit: 0.1
   duration:
     intervalSeconds: 10
     iterationsPerLoop: 10

@@ -7,14 +7,14 @@ metadata:
 spec:
   template:
     metadata:
-      name: sample-app-v2
+      name: sample-app-1
     spec:
       containers:
       # Docker image used by second revision
       - image: docker.io/ibmcom/helloworld
         env:
         - name: TARGET
-          value: "Stranger"
+          value: "World"
   traffic: # all traffic goes to the revision defined herein
   - tag: current
     latestRevision: true
