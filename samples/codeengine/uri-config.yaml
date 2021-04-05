@@ -19,7 +19,7 @@
       # metric returned for this version will be interval*rate
       # interval = time elapsed in seconds since the metrics-mock pod started
       type: counter
-      rate: 0.0001   
+      rate: 0.00001   
 - provider: prometheus # this URI will generate metrics in Prometheus response format
   uri: /promgauge # do not use / for the uri; will lead to unexpected bad things; also make sure URIs are unique
   # this URI will generate metrics for the following versions

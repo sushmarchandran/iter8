@@ -9,13 +9,12 @@ ibmcloud ce project select -n sample-p
 ibmcloud ce project current 
 ```
 
-## Create an application which doesn't scale down
-
-
 ## Get ns
 ```
 kubectl get ns
 ```
+
+## Add the namespace into the candidate script
 
 ## Apply the candidate version for that
 ```
@@ -34,15 +33,17 @@ kustomize build ./core | kubectl -n iter8-system apply -f -
 ./samples/codeengine/create-cm.sh /Users/sushma/.bluemix/plugins/code-engine/sample-p-72127f4a-ea5b-4c6f-a64a-054bcb081958.yaml
 
 
-## Apply Metrics
-```
-kustomize build ./metrics | kubectl apply -f - 
-```
 
 ## Run metrics mock
 ```
 kubectl apply -f samples/codeengine/metricmock.yaml 
 ```
+
+## Apply Metrics
+```
+kustomize build ./metrics | kubectl apply -f - 
+```
+
 
 ## Generate traffic
 
