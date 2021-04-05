@@ -54,9 +54,9 @@ kustomize build $ITER8INSTALL/metrics/codeengine | kubectl apply -f -
 ------------------------------------------------
 ## Demo of a fixed split experiment using iter8
 
-### Apply the candidate version for that
+### Apply the candidate version in the Code Engine cluster
 ```
-kubectl apply -f $ITER8/samples/codeengine/sample-app-candidate.yaml -n $NAMESPACE
+kubectl apply -f samples/codeengine/sample-app-candidate.yaml -n $NAMESPACE
 ```
 
 ### Show traffic

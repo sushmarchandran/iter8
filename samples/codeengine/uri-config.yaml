@@ -20,10 +20,6 @@
       # interval = time elapsed in seconds since the metrics-mock pod started
       type: counter
       rate: 0.00001
-- provider: prometheus # this URI will generate metrics in Prometheus response format
-  uri: /promcounter # do not use / for the uri; will lead to unexpected bad things; also make sure URIs are unique
-  # this URI will generate metrics for the following versions
-  versions:
   - params: # params for version 1 should match the following; 
     - name: query
       # make value a literal scalar so that it can be used as a regex
@@ -32,7 +28,7 @@
       # metric returned for this version will be interval*rate
       # interval = time elapsed in seconds since the metrics-mock pod started
       type: counter
-      rate: 1    
+      rate: 2    
   - params: # params for version 1 should match the following; 
     - name: query
       # make value a literal scalar so that it can be used as a regex
@@ -41,4 +37,4 @@
       # metric returned for this version will be interval*rate
       # interval = time elapsed in seconds since the metrics-mock pod started
       type: counter
-      rate: 1
+      rate: 2
