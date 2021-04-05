@@ -37,6 +37,13 @@ kustomize build ./core | kubectl -n iter8-system apply -f -
 ## Apply Metrics
 
 
+## Run metrics mock
+```
+go build
+./metrics-mock
+```
+
+
 
 ## Generate traffic
 

@@ -5,7 +5,7 @@
   - params: # params for version 1 should match the following; 
     - name: query
       # make value a literal scalar so that it can be used as a regex
-      value: "error_count_baseline"
+      value: "error_count_baseline\\{revision_name='sample-app-v1'\\}"
     metric:
       # metric returned for this version will be interval*rate
       # interval = time elapsed in seconds since the metrics-mock pod started
