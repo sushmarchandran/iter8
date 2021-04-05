@@ -30,20 +30,19 @@ kustomize build ./core | kubectl -n iter8-system apply -f -
 ```
 
 
-## Create config
+## Create kube config
 ./samples/codeengine/create-cm.sh /Users/sushma/.bluemix/plugins/code-engine/sample-p-72127f4a-ea5b-4c6f-a64a-054bcb081958.yaml
 
 
 ## Apply Metrics
-
+```
+kustomize build ./metrics | kubectl apply -f - 
+```
 
 ## Run metrics mock
 ```
-go build
-./metrics-mock
+kubectl apply -f samples/codeengine/metricmock.yaml 
 ```
-
-
 
 ## Generate traffic
 
