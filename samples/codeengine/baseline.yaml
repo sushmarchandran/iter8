@@ -7,7 +7,7 @@ metadata:
 spec:
   template:
     metadata:
-      name: sample-app-1
+      name: sample-app-00001
     spec:
       containers:
       # Docker image used by second revision

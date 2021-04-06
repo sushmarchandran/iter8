@@ -65,4 +65,12 @@ http://sample-app.7roueeh7gob.us-south.codeengine.appdomain.cloud
 ```
 
 ### Run experiment
+```
 kubectl apply -f $ITER8/samples/codeengine/experiment.yaml
+```
+
+
+### Watch experiment:
+```
+kubectl get experiment -ojson --watch | jq .status.analysis.versionAssessments 
+```
