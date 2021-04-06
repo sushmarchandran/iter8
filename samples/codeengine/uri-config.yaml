@@ -56,19 +56,3 @@
       # interval = time elapsed in seconds since the metrics-mock pod started
       type: counter
       rate: 0.00001
-- provider: prometheus # this URI will generate metrics in Prometheus response format
-  uri: /promgauge # do not use / for the uri; will lead to unexpected bad things; also make sure URIs are unique
-  # this URI will generate metrics for the following versions
-  versions:
-  - params: # params for version 1 should match the following; 
-    - name: query
-      # make value a literal scalar so that it can be used as a regex
-      value: "accuracy\\{model_name='dark'\\}\\[.*\\]"
-    metric:
-      # metric returned for this version will be (scaled and shifted) beta distributed
-      # interval = time elapsed in seconds since the metrics-mock pod started
-      type: gauge
-      shift: 5
-      multiplier: 10
-      alpha: 2
-      beta: 2
