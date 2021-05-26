@@ -5,51 +5,59 @@ This demo requires two kubernetes clusters. One IBM Cloud cluster with a code-en
 
 
 ## In IBM Cloud Cluster:
-### Sign into IBM Cloud and set up resource group and project. Save the Kubeconfig path generated in the last step.
+### Step 1: Sign into IBM Cloud and set up resource group and project. Save the Kubeconfig path generated in the last step.
 ```
 ic login --sso
 ic target -g default
-ibmcloud ce project select -n helloworld-project
+ibmcloud ce project select -n sample-p
 ibmcloud ce project current 
 ```
 
-### Get ns
+### Step 2: Get ns
 ```
 kubectl get ns
 export NAMESPACE=<Code engine namespace>
 ```
 
 ## In your local minikube cluster:
-### Start minikube
+### Step 1: Start minikube
 ```
 minikube start --cpus 5 --memory 5120
 ```
 
-### Set PATHS to run cmmands easily
+### Step 3: Set PATHS to run cmmands easily
 ```
 export ITER8=/Users/sushma/projects/iter8-tools/forks/iter8
 export ITER8INSTALL=/Users/sushma/projects/iter8-tools/forks/iter8-install
 ```
 
-### Install ITER8
+### Step 4: Install ITER8
 ```
 kustomize build $ITER8INSTALL/core | kubectl -n iter8-system apply -f - 
 ```
 
-### Create a configmap so the kubeconfig of the code engine cluster is accessible to minikube. Get 
+### Step 5: Create a configmap so the kubeconfig of the code engine cluster is accessible to minikube. Get 
 ```
 $ITER8/samples/codeengine/create-cm.sh <CODE ENGINE KUBECONFIG>
 ```
 
-### Apply Metrics
+### Step 6: Run metrics mock
 ```
-kubectl apply -f $ITER8INSTALL/metrics/codeengine/metrics/mean-latency.yaml -n iter8-system
-kubectl apply -f $ITER8INSTALL/metrics/codeengine/metrics/request-count.yaml -n iter8-system
-kubectl apply -f $ITER8INSTALL/metrics/codeengine/metrics/error-rate.yaml -n iter8-system
+kubectl apply -f $ITER8/samples/codeengine/metricmock.yaml 
+```
+
+### Step 7: Apply Metrics
+```
+kustomize build $ITER8INSTALL/metrics/codeengine | kubectl apply -f - 
 ```
 
 ------------------------------------------------
-## Demo of a Conformance experiment using iter8
+## Demo of a fixed split experiment using iter8
+
+### Apply the candidate version in the Code Engine cluster
+```
+kubectl apply -f samples/codeengine/sample-app-candidate.yaml -n $NAMESPACE
+```
 
 ### Show traffic
 ```
@@ -58,7 +66,7 @@ http://sample-app.7roueeh7gob.us-south.codeengine.appdomain.cloud
 
 ### Run experiment
 ```
-kubectl apply -f $ITER8/samples/codeengine/conformance-exp.yaml
+kubectl apply -f $ITER8/samples/codeengine/experiment.yaml
 ```
 
 

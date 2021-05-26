@@ -1,0 +1,11 @@
+{
+    "last": 3000,
+    "metrics": [
+      {
+        "id": "ibm_codeengine_application_request_duration_milliseconds_sum",
+        "aggregations": {"time": "avg"}
+      }
+    ],
+    "filter": "ibm_codeengine_application_name = \"sample-app\""
+  }
+
