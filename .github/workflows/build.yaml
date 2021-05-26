@@ -1,39 +1,21 @@
-name: build and push documentation
+name: build and serve local docs
 
 on:
-  push:
-    paths:
-    - 'mkdocs/**'
   pull_request:
     paths:
+    - '.github/workflows/**'
     - 'mkdocs/**'
 
 env:
-  NODE_VERSION: 15.x
   PYTHON_VERSION: 3.x
 
 jobs:
   document:
-    name: Push documentation
+    name: Build and serve local docs
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Set up Node.js runtime
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-
-    - name: Set up Node.js dependencies
-      run: | 
-        cd mkdocs
-        npm install
-
-    - name: Build project
-      run: |
-        cd mkdocs
-        npm run build
 
     - name: Set up Python runtime
       uses: actions/setup-python@v1
@@ -43,6 +25,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         cd mkdocs
+        pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Build and serve

@@ -1,11 +1,11 @@
 ---
-template: overrides/main.html
+template: main.html
 ---
 
 # Using Metrics in Experiments
 
 !!! tip "Iter8 metrics API"    
-    Iter8 defines a new Kubernetes resource called Metric that makes it easy to use metrics in experiments from RESTful metric backends like Prometheus, New Relic, Sysdig and Elastic.
+    Iter8 defines a new Kubernetes resource called Metric that makes it easy to use metrics in experiments from RESTful metric providers like Prometheus, New Relic, Sysdig and Elastic.
 
     List metrics available in your cluster using the `kubectl get metrics.iter8.tools` command. Use metrics in experiments by referencing them in experiment criteria.
 
@@ -18,16 +18,16 @@ kubectl get metrics.iter8.tools --all-namespaces
 
 ```shell
 NAMESPACE       NAME                           TYPE      DESCRIPTION
-iter8-knative   95th-percentile-tail-latency   gauge     95th percentile tail latency
-iter8-knative   error-count                    counter   Number of error responses
-iter8-knative   error-rate                     gauge     Fraction of requests with error responses
-iter8-knative   mean-latency                   gauge     Mean latency
-iter8-knative   request-count                  counter   Number of requests
+iter8-knative   95th-percentile-tail-latency   Gauge     95th percentile tail latency
+iter8-knative   error-count                    Counter   Number of error responses
+iter8-knative   error-rate                     Gauge     Fraction of requests with error responses
+iter8-knative   mean-latency                   Gauge     Mean latency
+iter8-knative   request-count                  Counter   Number of requests
 ```
 
 ## Referencing metrics
 
-Use metrics in experiments by referencing them in criteria section. Reference metrics using the `namespace/name` or `name` [format](/reference/apispec/#criteria).
+Use metrics in experiments by referencing them in criteria section. Reference metrics using the `namespace/name` or `name` [format](../../../reference/apispec/#criteria).
 
 ??? example "Sample experiment illustrating the use of metrics"
     ```yaml
@@ -88,4 +88,4 @@ Use metrics in experiments by referencing them in criteria section. Reference me
 
 ## Observing metric values
 
-During an experiment, Iter8 reports the metric values observed for each version. Use `iter8ctl` to observe these metric values in realtime. See [here](/getting-started/quick-start/with-knative/#7-observe-experiment) for an example.
+During an experiment, Iter8 reports the metric values observed for each version. Use `iter8ctl` to observe these metric values in realtime. See [here](../../../getting-started/quick-start/with-knative/#8-observe-experiment) for an example.

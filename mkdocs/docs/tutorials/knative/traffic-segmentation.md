@@ -1,13 +1,13 @@
 ---
-template: overrides/main.html
+template: main.html
 ---
 
 # Progressive Canary Release with Traffic Segmentation
 
 !!! tip ""
-    An experiment with [`Canary`](/concepts/buildingblocks/#testing-pattern) testing, [`Progressive`](/concepts/buildingblocks/#deployment-pattern) deployment and [traffic segmentation](/concepts/buildingblocks/#traffic-shaping).
+    An experiment with [`Canary`](../../../concepts/buildingblocks/#testing-pattern) testing, [`Progressive`](../../../concepts/buildingblocks/#deployment-pattern) deployment and [traffic segmentation](../../../concepts/buildingblocks/#traffic-engineering).
     
-    ![Canary](/assets/images/request-routing.png)
+    ![Canary](../../images/request-routing.png)
 
 You will create the following resources in this tutorial.
 
@@ -17,12 +17,13 @@ You will create the following resources in this tutorial.
 4. An **Iter8 experiment** which verifies that the `candidate` satisfies mean latency, 95th percentile tail latency, and error rate `objectives`, and progressively increases the proportion of traffic with `country: wakanda` header that is routed to the `candidate`.
 
 ???+ warning "Before you begin, you will need... "
-    **Kubernetes cluster with Iter8, Knative and Istio:** Ensure that you have Kubernetes cluster with Iter8 and Knative installed, and that Knative uses the Istio networking layer. You can do this by following Steps 1, 2, and 3 of the [quick start tutorial for Knative](/getting-started/quick-start/with-knative/), and selecting Istio during Step 3.
+    **Kubernetes cluster with Iter8, Knative and Istio:** Ensure that you have a Kubernetes cluster with Iter8, Knative with the Istio networking layer, Prometheus add-on, and Iter8's sample metrics for Knative installed. You can do so by following Steps 1, 2, 3 and 6 of the [quick start tutorial for Knative](../../../getting-started/quick-start/with-knative/), and selecting Istio during Step 3.
 
     **Cleanup:** If you ran an Iter8 tutorial earlier, run the associated cleanup step.
 
-    **ITER8:** Ensure that `ITER8` environment variable is set to the root directory of your cloned Iter8 repo. See [Step 2 of the quick start tutorial for Knative](/getting-started/quick-start/with-knative/#2-clone-iter8-repo) for example.
+    **ITER8 environment variable:** Ensure that `ITER8` environment variable is set to the root directory of your cloned Iter8 repo. See [Step 2 of the quick start tutorial for Knative](../../../getting-started/quick-start/with-knative/#2-clone-iter8-repo) for example.
 
+    **[`iter8ctl`](../../../getting-started/quick-start/with-knative/#8-observe-experiment):** This tutorial uses `iter8ctl`.
 
 ## 1. Create versions
 ```shell
@@ -86,7 +87,7 @@ kubectl apply -f $ITER8/samples/knative/traffic-segmentation/routing-rule.yaml
       - knative-serving/knative-ingress-gateway
       - knative-serving/knative-local-gateway
       hosts:
-      - customdomain.com
+      - example.com
       http:
       - match:
         - headers:
@@ -140,7 +141,7 @@ cd $ITER8
     spec:
       template:
         spec:
-          activeDeadlineSeconds: 600
+          activeDeadlineSeconds: 6000
           containers:
           - name: curl-from-gondor
             image: tutum/curl
@@ -149,7 +150,7 @@ cd $ITER8
             - -c
             - |
               while true; do
-              curl -sS customdomain.com -H "country: gondor"
+              curl -sS example.com -H "country: gondor"
               sleep 1.0
               done
           - name: curl-from-wakanda
@@ -159,7 +160,7 @@ cd $ITER8
             - -c
             - |
               while true; do
-              curl -sS customdomain.com -H "country: wakanda"
+              curl -sS example.com -H "country: wakanda"
               sleep 0.25
               done
           restartPolicy: Never
@@ -228,7 +229,7 @@ kubectl apply -f $ITER8/samples/knative/traffic-segmentation/experiment.yaml
 ## 5. Observe experiment
 Observe the experiment in realtime. Paste commands from the tabs below in separate terminals.
 
-=== "iter8ctl"
+=== "Metrics-based analysis"
     ```shell
     while clear; do
     kubectl get experiment request-routing -o yaml | iter8ctl describe -f -
@@ -236,20 +237,20 @@ Observe the experiment in realtime. Paste commands from the tabs below in separa
     done
     ```
 
-    The output will look similar to the [iter8ctl output](/getting-started/quick-start/with-knative/#7-observe-experiment) in the quick start instructions.
+    The output will look similar to the [iter8ctl output](../../../getting-started/quick-start/with-knative/#8-observe-experiment) in the quick start instructions.
 
     As the experiment progresses, you should eventually see that all of the objectives reported as being satisfied by both versions. The candidate is identified as the winner and is recommended for promotion. When the experiment completes (in ~ 2 mins), you will see the experiment stage change from `Running` to `Completed`.
 
-=== "kubectl get experiment"
+=== "Experiment progress"
     ```shell
     kubectl get experiment request-routing --watch
     ```
 
-    The output will look similar to the [kubectl get experiment output](/getting-started/quick-start/with-knative/#7-observe-experiment) in the quick start instructions.
+    The output will look similar to the [kubectl get experiment output](../../../getting-started/quick-start/with-knative/#8-observe-experiment) in the quick start instructions.
 
     When the experiment completes (in ~ 2 mins), you will see the experiment stage change from `Running` to `Completed`.
 
-=== "kubectl get vs"
+=== "Traffic split"
     ```shell
     kubectl get vs routing-for-wakanda -o json --watch | jq .spec.http[0].route
     ```
@@ -258,6 +259,21 @@ Observe the experiment in realtime. Paste commands from the tabs below in separa
 
     As the experiment progresses, you should see traffic progressively shift from host `sample-app-v1.default.svc.cluster.local` to host `sample-app-v2.default.svc.cluster.local`. When the experiment completes, the traffic remains split; this experiment has no _finish_ action to promote the winning version.
 
+???+ info "Understanding what happened"
+    1. You configured two Knative services corresponding to two versions of your app in `services.yaml`.
+
+    2. You used `example.com` as the HTTP host in this tutorial.
+        - **Note:** In your production cluster, use domain(s) that you own in the setup of the virtual service.
+
+    3. You set up an Istio virtual service which mapped the Knative services to this custom domain. The virtual service specified the following routing rules: all HTTP requests to `example.com` with their Host header or :authority pseudo-header **not** set to `wakanda` would be routed to the `baseline`; those with `wakanda` Host header or :authority pseudo-header may be routed to `baseline` and `candidate`.
+    
+    4. The percentage of `wakandan` requests sent to `candidate` is 0% at the beginning of the experiment.
+
+    5. You generated traffic for `example.com` using a `curl`-job with two `curl`-containers to simulate user requests. You injected Istio sidecar injected into it to simulate traffic generation from within the cluster. The sidecar was needed in order to correctly route traffic. One of the `curl`-containers sets the `country` header field to `wakanda`, and the other to `gondor`.
+        - **Note:** You used Istio version 1.8.2 to inject the sidecar. This version of Istio corresponds to the one installed in [Step 3 of the quick start tutorial](http://localhost:8000/getting-started/quick-start/with-knative/#3-install-knative-and-iter8). If you have a different version of Istio installed in your cluster, change the Istio version during sidecar injection appropriately.
+    
+    6. You created an Iter8 `Canary` experiment with `Progressive` deployment pattern to evaluate the `candidate`. In each iteration, Iter8 observed the mean latency, 95th percentile tail-latency, and error-rate metrics collected by Prometheus, and verified that the `candidate` version satisfied all the `objectives` specified in the experiment. It progressively increased the proportion of traffic with `country: wakanda` header that is routed to the `candidate`.
+
 ## 6. Cleanup
 ```shell
 kubectl delete -f $ITER8/samples/knative/traffic-segmentation/experiment.yaml
@@ -265,18 +281,3 @@ kubectl delete -f $ITER8/samples/knative/traffic-segmentation/curl.yaml
 kubectl delete -f $ITER8/samples/knative/traffic-segmentation/routing-rule.yaml
 kubectl delete -f $ITER8/samples/knative/traffic-segmentation/services.yaml
 ```
-
-???+ info "Understanding what happened"
-    1. You configured two Knative services corresponding to two versions of your app in `services.yaml`.
-
-    2. You used `customdomain.com` as the HTTP host in this tutorial.
-        - **Note:** In your production cluster, use domain(s) that you own in the setup of the virtual service.
-
-    3. You set up an Istio virtual service which mapped the Knative services to this custom domain. The virtual service specified the following routing rules: all HTTP requests to `customdomain.com` with their Host header or :authority pseudo-header **not** set to `wakanda` would be routed to the `baseline`; those with `wakanda` Host header or :authority pseudo-header may be routed to `baseline` and `candidate`.
-    
-    4. The percentage of `wakandan` requests sent to `candidate` is 0% at the beginning of the experiment.
-
-    5. You generated traffic for `customdomain.com` using a `curl`-job with two `curl`-containers to simulate user requests. You injected Istio sidecar injected into it to simulate traffic generation from within the cluster. The sidecar was needed in order to correctly route traffic. One of the `curl`-containers sets the `country` header field to `wakanda`, and the other to `gondor`.
-        - **Note:** You used Istio version 1.8.2 to inject the sidecar. This version of Istio corresponds to the one installed in [Step 3 of the quick start tutorial](http://localhost:8000/getting-started/quick-start/with-knative/#3-install-knative-and-iter8). If you have a different version of Istio installed in your cluster, change the Istio version during sidecar injection appropriately.
-    
-    6. You created an Iter8 `Canary` experiment with `Progressive` deployment pattern to evaluate the `candidate`. In each iteration, Iter8 observed the mean latency, 95th percentile tail-latency, and error-rate metrics collected by Prometheus, and verified that the `candidate` version satisfied all the `objectives` specified in the experiment. It progressively increased the proportion of traffic with `country: wakanda` header that is routed to the `candidate`.

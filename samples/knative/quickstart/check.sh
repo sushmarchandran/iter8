@@ -12,7 +12,7 @@ fi
 
 # Check if experiment has completed
 completed="Completed"
-stage=$(kubectl get experiment quickstart-exp -o json | jq -r .status.stage)
+stage=$(kubectl get experiment ${EXPERIMENT} -o json | jq -r .status.stage)
 if [[ $stage = $completed ]]; then
     echo "Experiment has Completed"
 else
@@ -37,12 +37,12 @@ else
 fi
 
 # Check if versionRecommendedForPromotion is candidate
-candidate="candidate"
-vrfp=$(kubectl get experiment quickstart-exp -o json | jq -r .status.versionRecommendedForPromotion)
+candidate="sample-app-v2"
+vrfp=$(kubectl get experiment ${EXPERIMENT} -o json | jq -r .status.versionRecommendedForPromotion)
 if [[ $vrfp = $candidate ]]; then
     echo "versionRecommendedForPromotion is $vrfp"
 else
-    echo "versionRecommendedForPromotion must be candidate; is" $vrfp
+    echo "versionRecommendedForPromotion must be $candidate; is" $vrfp
     exit 1
 fi
 
@@ -60,9 +60,9 @@ fi
 percent=100
 actualPercent=$(kubectl get ksvc sample-app -o json | jq -r '.spec.traffic[0].percent')
 if [[ $actualPercent -eq $percent ]]; then
-    echo "percent is 100"
+    echo "percent is $percent"
 else
-    echo "percent must be 100; is" $percent
+    echo "percent must be $actualPercent; is" $percent
     exit 1
 fi
 

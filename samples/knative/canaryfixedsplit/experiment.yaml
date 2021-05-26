@@ -10,8 +10,6 @@ spec:
     testingPattern: Canary
     deploymentPattern: FixedSplit
     actions:
-      start: # run the following sequence of tasks at the start of the experiment
-      - task: knative/init-experiment
       finish: # run the following sequence of tasks at the end of the experiment
       - task: common/exec # promote the winning version using kustomize
         with:
@@ -19,7 +17,7 @@ spec:
           args:
           - "-c"
           - |
-           kustomize build github.com/iter8-tools/iter8/samples/knative/canaryfixedsplit/{{ .name }}?ref=master \
+           kustomize build github.com/iter8-tools/iter8/samples/knative/canaryfixedsplit/{{ .promote }}?ref=master \
             | kubectl apply -f -
   criteria:
     # mean latency of version should be under 50 milliseconds
@@ -38,12 +36,12 @@ spec:
   versionInfo:
     # information about app versions used in this experiment
     baseline:
-      name: baseline
+      name: sample-app-v1
       variables:
-      - name: revision
-        value: sample-app-v1 
+      - name: promote
+        value: baseline
     candidates:
-    - name: candidate
+    - name: sample-app-v2
       variables:
-      - name: revision
-        value: sample-app-v2
+      - name: promote
+        value: candidate

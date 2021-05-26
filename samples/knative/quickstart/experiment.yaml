@@ -6,25 +6,22 @@ spec:
   # target identifies the knative service under experimentation using its fully qualified name
   target: default/sample-app
   strategy:
-    # this experiment will perform a canary test
-    testingPattern: Canary
+    testingPattern: A/B
     deploymentPattern: Progressive
     actions:
-      start: # run the following sequence of tasks at the start of the experiment
-      - task: knative/init-experiment
       finish: # run the following sequence of tasks at the end of the experiment
-      - task: common/exec # promote the winning version
+      - task: common/exec # promote the winning version      
         with:
-          cmd: kubectl
-          args: 
-          - "apply"
-          - "-f"
-          - "https://raw.githubusercontent.com/iter8-tools/iter8/master/samples/knative/quickstart/{{ .promote }}.yaml"
+          cmd: /bin/sh
+          args:
+          - "-c"
+          - |
+            kubectl apply -f https://raw.githubusercontent.com/iter8-tools/iter8/master/samples/knative/quickstart/{{ .promote }}.yaml
   criteria:
     requestCount: iter8-knative/request-count
-    # mean latency of version should be under 50 milliseconds
-    # 95th percentile latency should be under 100 milliseconds
-    # error rate should be under 1%
+    rewards: # Business rewards
+    - metric: iter8-knative/user-engagement
+      preferredDirection: High # maximize user engagement
     objectives: 
     - metric: iter8-knative/mean-latency
       upperLimit: 50
@@ -38,16 +35,24 @@ spec:
   versionInfo:
     # information about app versions used in this experiment
     baseline:
-      name: current
+      name: sample-app-v1
+      weightObjRef:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: sample-app
+        namespace: default
+        fieldPath: .spec.traffic[0].percent
       variables:
-      - name: revision
-        value: sample-app-v1 
       - name: promote
         value: baseline
     candidates:
-    - name: candidate
+    - name: sample-app-v2
+      weightObjRef:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: sample-app
+        namespace: default
+        fieldPath: .spec.traffic[1].percent
       variables:
-      - name: revision
-        value: sample-app-v2
       - name: promote
         value: candidate 
