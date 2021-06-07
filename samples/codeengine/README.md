@@ -20,9 +20,10 @@ ibmcloud ce project current
 
 ### Generate load
 ```
-curl http://sample-app.7roueeh7gob.us-south.codeengine.appdomain.cloud
+APPLICATION_URL=`kubectl get ksvc sample-app -o jsonpath='{.status.url}'`
+curl $APPLICATION_URL
 
-watch -n 0.5 'curl https://sample-app.7roueeh7gob.us-south.codeengine.appdomain.cloud/'
+watch -n 0.5 'curl $APPLICATION_URL'
 ```
 
 ## In a separate terminal, run a script to create a local Kubernetes cluster, install Iter8 and start  an Iter8 experiment:
