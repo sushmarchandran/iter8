@@ -13,14 +13,24 @@ ibmcloud ce project select -n helloworld-project
 ibmcloud ce project current 
 ```
 
-### Get ns
+### Create project and baseline application
+
+### Apply candidate
+
+
+### Generate load
 ```
-kubectl get ns
-export NAMESPACE=<Code engine namespace>
+curl http://sample-app.7roueeh7gob.us-south.codeengine.appdomain.cloud
+
+watch -n 0.5 'curl https://sample-app.7roueeh7gob.us-south.codeengine.appdomain.cloud/'
 ```
 
-## In your local minikube cluster:
-### Start minikube
+## In a separate terminal, run a script to create a local Kubernetes cluster, install Iter8 and start  an Iter8 experiment:
+```
+$ITER8/samples/codeengine/runexp.sh <kubeconfig-of-codeengine-exp> <experiment-file-name>
+```
+
+<!-- ### Start minikube
 ```
 minikube start --cpus 5 --memory 5120
 ```
@@ -36,7 +46,7 @@ export ITER8INSTALL=/Users/sushma/projects/iter8-tools/forks/iter8-install
 kustomize build $ITER8INSTALL/core | kubectl -n iter8-system apply -f - 
 ```
 
-### Create a configmap so the kubeconfig of the code engine cluster is accessible to minikube. Get 
+### Create a configmap so the kubeconfig of the code engine cluster is accessible to minikube.
 ```
 $ITER8/samples/codeengine/create-cm.sh <CODE ENGINE KUBECONFIG>
 ```
@@ -51,32 +61,14 @@ kubectl apply -f $ITER8INSTALL/metrics/codeengine/metrics/error-rate.yaml -n ite
 ------------------------------------------------
 ## Demo of a Conformance experiment using iter8
 
-### Show traffic
-```
-http://sample-app.7roueeh7gob.us-south.codeengine.appdomain.cloud
-```
 
 ### Run experiment
 ```
 kubectl apply -f $ITER8/samples/codeengine/conformance-exp.yaml
-```
+``` -->
 
 
 ### Watch experiment:
 ```
 kubectl get experiment -ojson --watch | jq .status.analysis.versionAssessments 
-```
-
-
-###############################
-## On minikube, install iter8
-
-Run:
-
-```
-kubectl apply -f $ITER8/samples/codeengine/prometheus/clusterrole.yaml
-
-kubectl create clusterrolebinding prometheus-querier --clusterrole=prometheus-querier --serviceaccount=kube-system:prometheus
-
-
 ```
