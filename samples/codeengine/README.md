@@ -14,9 +14,26 @@ ibmcloud ce project current
 ```
 
 ### Create project and baseline application
+1.  Open the Code Engine console
+2. Click on `Projects` on the side bar
+3. Click on the `Create +` button to create a new prject
+4. Name it `helloworld-project`
+
+### Create application:
+
+1. Open the Code Engine console.
+2. Select Start creating from Run a container image.
+3. Select Application.
+4. Enter a name for the application: `sample-app`.
+5. Select `helloworld-project` from the list of available projects.
+4. Select to run a Container image and specify `docker.io/ibmcom/helloworld` for the image reference.
+5. Click Create.
+6. After the application status changes to Ready, you can test the application by clicking Send request in the Test pane. To open the application in a web page, click Open application URL.
 
 ### Apply candidate
-
+```
+kubectl apply -f $ITER8/samples/codeengine/sample-app-candidate.yaml
+```
 
 ### Generate load
 ```
